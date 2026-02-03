@@ -45,11 +45,13 @@ export async function PATCH(request: NextRequest) {
   try {
     // Check admin password (simple auth)
     const authHeader = request.headers.get('authorization');
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
-    if (!authHeader || authHeader !== `Bearer ${adminPassword}`) {
+    console.log('Auth check:', authHeader ? 'Header present' : 'No header');
+
+    if (!authHeader || authHeader !== `Bearer ${expectedPassword}`) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - invalid or missing password' },
         { status: 401 }
       );
     }

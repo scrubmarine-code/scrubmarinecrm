@@ -65,6 +65,12 @@ In your project folder (`/root/scrubmarinecrm`), create a file called:
 Paste this and fill in your values from Step 2:
 
 ```env
+# Admin Dashboard Password
+# This is used to log into /admin
+# If not set, defaults to 'admin123' (change this!)
+ADMIN_PASSWORD=your-secure-admin-password
+NEXT_PUBLIC_ADMIN_PASSWORD=your-secure-admin-password
+
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
@@ -263,6 +269,57 @@ scrubmarinecrm/
 - Check Supabase **Table Editor** → **clients** for data
 - Check browser **Network tab** for API errors
 - Verify RLS policies are set up (in `schema.sql`)
+
+---
+
+
+## 🔧 Troubleshooting Admin Dashboard
+
+### "Can not view clients" or empty table
+**Problem:** Clients not showing in admin dashboard
+
+**Solutions:**
+1. Check browser console for errors
+2. Verify Supabase schema was run correctly
+3. Check that RLS policies allow authenticated users to read clients
+4. Try refreshing the page after logging in
+
+### "Can not change logo/color" (401 error)
+**Problem:** PATCH /api/settings returns 401
+
+**Solutions:**
+1. **Default password:** Try `admin123` if you haven't set ADMIN_PASSWORD
+2. Check that password is stored: Open browser DevTools → Application → Local Storage
+   - Should see `admin_auth: true` and `admin_password: your-password`
+3. If missing, log out and log back in
+4. Check Vercel environment variables have ADMIN_PASSWORD set
+
+### "Logo not showing" (404 error)
+**Problem:** GET /logo.png or /logo.svg returns 404
+
+**Solutions:**
+1. Default logo is now `/logo.svg` (not .png)
+2. In Admin Dashboard, set Logo URL to `/logo.svg`
+3. Or upload your own image to `/public/` folder and use `/your-image.png`
+4. External URLs work too: `https://example.com/logo.png`
+
+### Changes not persisting after refresh
+**Problem:** Settings save but reset on page reload
+
+**Solutions:**
+1. Check browser console for save errors
+2. Verify Supabase settings table has data:
+   - Go to Supabase Table Editor → settings
+   - Should see one row with your logo_url, primary_color, etc.
+3. If empty, run the INSERT statement from schema.sql again
+
+### "Can not delete clients"
+**Problem:** Delete button doesn't work
+
+**Solutions:**
+1. Check browser console for errors
+2. Verify you're still logged in (check localStorage)
+3. Try refreshing the page
 
 ---
 

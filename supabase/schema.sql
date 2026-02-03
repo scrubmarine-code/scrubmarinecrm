@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS idx_clients_created_at ON clients(created_at DESC);
 -- ============================================
 CREATE TABLE IF NOT EXISTS settings (
     id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1), -- Only one row allowed
-    logo_url TEXT DEFAULT '/logo.png',
+    logo_url TEXT DEFAULT '/logo.svg',
     company_name TEXT DEFAULT 'SCRUBMARINE.CA',
     tagline TEXT DEFAULT 'HULL CLEANING • DIVING SERVICES',
     primary_color TEXT DEFAULT '#e53935',
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS settings (
 
 -- Insert default settings
 INSERT INTO settings (id, logo_url, company_name, tagline, primary_color)
-VALUES (1, '/logo.png', 'SCRUBMARINE.CA', 'HULL CLEANING • DIVING SERVICES', '#e53935')
+VALUES (1, '/logo.svg', 'SCRUBMARINE.CA', 'HULL CLEANING • DIVING SERVICES', '#e53935')
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================

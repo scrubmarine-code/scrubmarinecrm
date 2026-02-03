@@ -40,11 +40,16 @@ export default function AdminDashboard() {
   });
   const [saveMessage, setSaveMessage] = useState('');
 
+  // Store admin password for API calls
+  const [adminPassword, setAdminPassword] = useState('');
+
   // Check if already authenticated (localStorage)
   useEffect(() => {
     const auth = localStorage.getItem('admin_auth');
-    if (auth === 'true') {
+    const savedPassword = localStorage.getItem('admin_password');
+    if (auth === 'true' && savedPassword) {
       setIsAuthenticated(true);
+      setAdminPassword(savedPassword);
     }
   }, []);
 
@@ -80,40 +85,55 @@ export default function AdminDashboard() {
   // Handle login
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setAuthError('');
 
-    // Simple password check - in production use proper auth
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || password.length > 0) {
+    // Get expected password from env or use a default for testing
+    const expectedPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+
+    if (password === expectedPassword) {
       localStorage.setItem('admin_auth', 'true');
+      localStorage.setItem('admin_password', password); // Store for API calls
+      setAdminPassword(password);
       setIsAuthenticated(true);
-      setAuthError('');
+      setPassword(''); // Clear login form
     } else {
-      setAuthError('Invalid password');
+      setAuthError('Invalid password. Check your .env.local ADMIN_PASSWORD setting.');
     }
   }
 
   // Save settings
   async function handleSaveSettings(e: React.FormEvent) {
     e.preventDefault();
-    setSaveMessage('');
+    setSaveMessage('Saving...');
+
+    // Debug: log what we're sending
+    console.log('Saving settings with auth:', adminPassword ? 'Password set' : 'No password');
 
     try {
       const res = await fetch('/api/settings', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${password}`,
+          'Authorization': `Bearer ${adminPassword}`,
         },
         body: JSON.stringify(editSettings),
       });
 
+      // Log response for debugging
+      console.log('Save response status:', res.status);
+
       if (res.ok) {
         setSaveMessage('✅ Settings saved successfully!');
         fetchData(); // Refresh
+      } else if (res.status === 401) {
+        setSaveMessage('❌ Unauthorized. Please log out and log back in.');
       } else {
-        setSaveMessage('❌ Failed to save settings');
+        const errorData = await res.json().catch(() => ({}));
+        setSaveMessage(`❌ Failed to save: ${errorData.error || res.statusText}`);
       }
     } catch (error) {
-      setSaveMessage('❌ Error saving settings');
+      console.error('Save error:', error);
+      setSaveMessage('❌ Network error saving settings');
     }
   }
 
@@ -128,9 +148,14 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         setClients(clients.filter(c => c.id !== id));
+      } else if (res.status === 401) {
+        alert('Session expired. Please log out and log back in.');
+      } else {
+        alert('Failed to delete client. Please try again.');
       }
     } catch (error) {
       console.error('Error deleting client:', error);
+      alert('Network error. Please try again.');
     }
   }
 
@@ -174,7 +199,7 @@ export default function AdminDashboard() {
           </form>
 
           <p className="text-sm text-gray-500 mt-4 text-center">
-            Set password in .env.local as ADMIN_PASSWORD
+            Default: admin123 or set ADMIN_PASSWORD in .env.local
           </p>
         </div>
       </div>
@@ -194,7 +219,9 @@ export default function AdminDashboard() {
           <button
             onClick={() => {
               localStorage.removeItem('admin_auth');
+              localStorage.removeItem('admin_password');
               setIsAuthenticated(false);
+              setAdminPassword('');
             }}
             className="text-red-600 hover:text-red-800"
           >
