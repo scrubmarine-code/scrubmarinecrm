@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Red background square -->
+  <rect width="200" height="200" fill="#e53935"/>
+
+  <!-- Boat icon (sailboat) -->
+  <g transform="translate(100, 85)" fill="white">
+    <!-- Sail -->
+    <path d="M-25 0 L0 -35 L25 0 Z"/>
+    <!-- Hull -->
+    <path d="M-30 0 L30 0 L20 15 L-20 15 Z"/>
+    <!-- Wave line -->
+    <path d="M-35 18 Q-20 25 0 18 Q20 25 35 18" stroke="white" stroke-width="3" fill="none"/>
+  </g>
+
+  <!-- Company name text -->
+  <text x="100" y="125" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-weight="bold" font-size="14">SCRUBMARINE.CA</text>
+
+  <!-- Tagline -->
+  <text x="100" y="145" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="7" letter-spacing="0.5">HULL CLEANING • DIVING SERVICES</text>
+</svg>
